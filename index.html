@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="HopeStack — Your private AI-powered mental health journal with mood tracking, sentiment analysis, and wellness resources.">
+  <meta name="theme-color" content="#0f172a">
+  <title>HopeStack — Cultivate Calmer Days</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Background Glows -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <!-- Stars (for onboarding) -->
+  <div class="stars-container" id="starsContainer"></div>
+
+  <!-- Toast Notification -->
+  <div class="toast toast-success" id="toast">
+    <span id="toastIcon">✓</span>
+    <span id="toastMsg">Saved successfully</span>
+  </div>
+
+  <div class="app-container">
+
+    <!-- ============================================
+         SCREEN 1: ONBOARDING
+         ============================================ -->
+    <section class="screen active" id="screen-onboarding">
+      <div class="onboarding-logo gradient-text animate-in">
+        <span class="logo-icon">🌿</span>HopeStack
+      </div>
+
+      <h1 class="onboarding-tagline animate-in animate-in-delay-1">
+        Cultivate<br>Calmer Days
+      </h1>
+
+      <p class="onboarding-desc animate-in animate-in-delay-2">
+        Your private space for mindful reflection and mental wellness.
+      </p>
+
+      <div class="onboarding-hero glass-card animate-in animate-in-delay-2">
+        <canvas id="heroCanvas" width="440" height="440"></canvas>
+      </div>
+
+      <div class="onboarding-features animate-in animate-in-delay-3">
+        <div class="onboarding-feature">
+          <div class="onboarding-feature-icon" style="background: var(--accent-indigo-dim);">📝</div>
+          <span class="onboarding-feature-label">Journal</span>
+        </div>
+        <div class="onboarding-feature">
+          <div class="onboarding-feature-icon" style="background: var(--accent-teal-dim);">📊</div>
+          <span class="onboarding-feature-label">Track</span>
+        </div>
+        <div class="onboarding-feature">
+          <div class="onboarding-feature-icon" style="background: var(--accent-lavender-dim);">🧠</div>
+          <span class="onboarding-feature-label">Screen</span>
+        </div>
+        <div class="onboarding-feature">
+          <div class="onboarding-feature-icon" style="background: var(--accent-emerald-dim);">🌿</div>
+          <span class="onboarding-feature-label">Heal</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-lg btn-full btn-glow animate-in animate-in-delay-4" id="btn-begin" onclick="navigateTo('auth')">
+        Begin Your Journey ✨
+      </button>
+    </section>
+
+    <!-- ============================================
+         SCREEN 7: AUTH (LOGIN/SIGNUP)
+         ============================================ -->
+    <section class="screen" id="screen-auth">
+      <div class="glass-card auth-card animate-in">
+        <div class="auth-tabs" id="authTabs">
+          <div class="auth-tab-indicator"></div>
+          <button class="auth-tab active" id="tab-login" onclick="toggleAuthMode('login')">Login</button>
+          <button class="auth-tab" id="tab-signup" onclick="toggleAuthMode('signup')">Create Account</button>
+        </div>
+
+        <h2 class="section-title" id="authTitle" style="margin-bottom: var(--space-xl);">Welcome Back</h2>
+        
+        <div class="auth-form-container">
+          <div class="auth-form-group hidden" id="name-group">
+            <label class="auth-form-label">Full Name</label>
+            <input type="text" class="input" id="authName" placeholder="Enter your name">
+          </div>
+          
+          <div class="auth-form-group">
+            <label class="auth-form-label">Email Address</label>
+            <input type="email" class="input" id="authEmail" placeholder="your@email.com">
+          </div>
+
+          <div class="auth-form-group">
+            <label class="auth-form-label">Password</label>
+            <input type="password" class="input" id="authPassword" placeholder="••••••••">
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full btn-lg" id="btnAuth" onclick="handleAuth()" style="margin-top: var(--space-md);">
+          Sign In 🔐
+        </button>
+
+        <div class="social-auth">
+          <div class="social-auth-title">Or continue with</div>
+          <div class="social-grid">
+            <button class="social-btn">谷歌</button>
+            <button class="social-btn"></button>
+            <button class="social-btn">f</button>
+          </div>
+        </div>
+
+        <p class="auth-footer" id="authFooter">
+          Don't have an account? <span class="auth-toggle-link" onclick="toggleAuthMode('signup')">Sign up here</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SCREEN 2: DASHBOARD
+         ============================================ -->
+    <section class="screen" id="screen-dashboard">
+      <div class="lang-picker" style="margin-top: 0; margin-bottom: var(--space-xl);">
+        <button class="lang-btn active" onclick="changeLanguage('en', this)">EN</button>
+        <button class="lang-btn" onclick="changeLanguage('hi', this)">हिन्दी</button>
+        <button class="lang-btn" onclick="changeLanguage('bn', this)">বাংলা</button>
+      </div>
+
+      <div class="section-header" style="margin-bottom: var(--space-xl);">
+        <div class="dashboard-greeting">
+          <div class="greeting-time" id="greetingTime"></div>
+          <div class="greeting-text" id="greetingText" data-i18n="greeting_morning">Good Morning 👋</div>
+        </div>
+        <div class="header-actions">
+          <div class="sync-status" id="syncStatus" title="Fully Synced">
+            <span class="sync-icon">☁️</span>
+            <span class="sync-dot"></span>
+          </div>
+          <button class="btn btn-icon btn-ghost" onclick="logout()" title="Logout">🚪</button>
+        </div>
+      </div>
+      
+      <div class="greeting-sub" style="margin-bottom: var(--space-xl);">How are you feeling today?</div>
+
+      <!-- Quick Mood Selector -->
+      <div class="glass-card glass-card-sm animate-in">
+        <div class="section-header">
+          <span class="section-title" data-i18n="dash_mood_title">Today's Mood</span>
+        </div>
+        <div class="mood-quick-select" id="dashMoodSelect">
+          <button class="mood-btn" data-mood="happy" onclick="selectDashMood(this)">
+            <span class="mood-emoji">😊</span>
+            <span class="mood-label" data-i18n="mood_happy">Happy</span>
+          </button>
+          <button class="mood-btn" data-mood="calm" onclick="selectDashMood(this)">
+            <span class="mood-emoji">😌</span>
+            <span class="mood-label" data-i18n="mood_calm">Calm</span>
+          </button>
+          <button class="mood-btn" data-mood="anxious" onclick="selectDashMood(this)">
+            <span class="mood-emoji">😟</span>
+            <span class="mood-label" data-i18n="mood_anxious">Anxious</span>
+          </button>
+          <button class="mood-btn" data-mood="sad" onclick="selectDashMood(this)">
+            <span class="mood-emoji">😢</span>
+            <span class="mood-label" data-i18n="mood_sad">Sad</span>
+          </button>
+          <button class="mood-btn" data-mood="angry" onclick="selectDashMood(this)">
+            <span class="mood-emoji">😠</span>
+            <span class="mood-label" data-i18n="mood_angry">Angry</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sentiment Trend -->
+      <div class="glass-card glass-card-sm trend-container animate-in animate-in-delay-1" style="margin-top: var(--space-md);">
+        <div class="section-header">
+          <span class="section-title">Sentiment Trend</span>
+          <span class="chip chip-indigo">7 Days</span>
+        </div>
+        <canvas class="trend-canvas" id="trendCanvas"></canvas>
+      </div>
+
+      <!-- Quick Actions -->
+      <div style="margin-top: var(--space-xl);">
+        <div class="section-header">
+          <span class="section-title">Quick Actions</span>
+        </div>
+        <div class="quick-actions">
+          <div class="glass-card glass-card-sm quick-action-card animate-in animate-in-delay-1" onclick="navigateTo('journal')">
+            <div class="quick-action-icon">📝</div>
+            <div class="quick-action-title" data-i18n="action_entry_title">New Entry</div>
+            <div class="quick-action-desc" data-i18n="action_entry_desc">Write in your journal</div>
+          </div>
+          <div class="glass-card glass-card-sm quick-action-card animate-in animate-in-delay-2" onclick="navigateTo('mood')">
+            <div class="quick-action-icon">📈</div>
+            <div class="quick-action-title" data-i18n="action_stats_title">Mood Stats</div>
+            <div class="quick-action-desc" data-i18n="action_stats_desc">View your trends</div>
+          </div>
+          <div class="glass-card glass-card-sm quick-action-card animate-in animate-in-delay-3" onclick="navigateTo('screening')">
+            <div class="quick-action-icon">🧠</div>
+            <div class="quick-action-title" data-i18n="action_screen_title">Screening</div>
+            <div class="quick-action-desc" data-i18n="action_screen_desc">PHQ-9 check-in</div>
+          </div>
+          <div class="glass-card glass-card-sm quick-action-card animate-in animate-in-delay-4" onclick="navigateTo('resources')">
+            <div class="quick-action-icon">🌿</div>
+            <div class="quick-action-title">Resources</div>
+            <div class="quick-action-desc">Wellness tools</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Entries -->
+      <div style="margin-top: var(--space-xl);">
+        <div class="section-header">
+          <span class="section-title">Recent Entries</span>
+          <button class="btn btn-ghost" style="font-size: var(--font-size-xs); padding: var(--space-xs) var(--space-md);" onclick="navigateTo('journal')">View All</button>
+        </div>
+        <div class="glass-card glass-card-sm" id="recentEntries">
+          <div class="empty-state">
+            <div class="empty-state-icon">📓</div>
+            <div class="empty-state-text">No entries yet. Start journaling!</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SCREEN 3: JOURNAL
+         ============================================ -->
+    <section class="screen" id="screen-journal">
+      <div class="section-header">
+        <h2 class="section-title" style="font-size: var(--font-size-xl);">New Entry</h2>
+        <span class="chip chip-indigo" id="journalDate"></span>
+      </div>
+
+      <!-- Mood Selector -->
+      <div class="glass-card glass-card-sm animate-in">
+        <div class="section-header">
+          <span class="section-title" style="font-size: var(--font-size-base);">How do you feel?</span>
+        </div>
+        <div class="journal-mood-select" id="journalMoodSelect">
+          <button class="journal-mood-btn" data-mood="happy" onclick="selectJournalMood(this)">
+            <span class="mood-emoji">😊</span>
+            <span class="mood-label">Happy</span>
+          </button>
+          <button class="journal-mood-btn" data-mood="calm" onclick="selectJournalMood(this)">
+            <span class="mood-emoji">😌</span>
+            <span class="mood-label">Calm</span>
+          </button>
+          <button class="journal-mood-btn" data-mood="anxious" onclick="selectJournalMood(this)">
+            <span class="mood-emoji">😟</span>
+            <span class="mood-label">Anxious</span>
+          </button>
+          <button class="journal-mood-btn" data-mood="sad" onclick="selectJournalMood(this)">
+            <span class="mood-emoji">😢</span>
+            <span class="mood-label">Sad</span>
+          </button>
+          <button class="journal-mood-btn" data-mood="angry" onclick="selectJournalMood(this)">
+            <span class="mood-emoji">😠</span>
+            <span class="mood-label">Angry</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Journal Text Area -->
+      <div class="glass-card glass-card-sm animate-in animate-in-delay-1" style="margin-top: var(--space-md); position: relative;">
+        <textarea class="textarea" id="journalText" placeholder="What's on your mind today? Write freely — this is your safe space..." oninput="analyzeJournalSentiment()"></textarea>
+        <div class="voice-actions">
+          <button class="btn btn-icon btn-mic" id="btnMic" onclick="toggleVoiceRecording()" title="Speech to Text">
+            🎙️ <span class="btn-label">Speech to Text</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Voice Waveform (Hidden by default) -->
+      <div class="glass-card glass-card-sm voice-wave-card hidden" id="voiceWaveCard" style="margin-top: var(--space-md);">
+        <div class="voice-wave-container" id="voiceWaveform">
+          <!-- Wave bars will be injected here -->
+        </div>
+        <div class="voice-status" id="voiceStatus">Listening...</div>
+      </div>
+
+      <!-- Live Sentiment Gauge -->
+      <div class="glass-card glass-card-sm animate-in animate-in-delay-2" style="margin-top: var(--space-md);">
+        <div class="section-header">
+          <span class="section-title" style="font-size: var(--font-size-base);">Sentiment Analysis</span>
+          <span class="chip chip-teal">Live</span>
+        </div>
+        <div class="gauge-container">
+          <div class="gauge-wrapper">
+            <canvas class="gauge-canvas" id="gaugeCanvas" width="400" height="220"></canvas>
+          </div>
+          <div class="gauge-value-label" id="gaugeLabel">Neutral</div>
+          <div class="gauge-labels">
+            <span class="gauge-label-text">Negative</span>
+            <span class="gauge-label-text">Positive</span>
+          </div>
+        </div>
+        <div class="sentiment-chips" id="sentimentChips">
+          <span class="chip chip-teal">Pos: 0.00</span>
+          <span class="chip chip-amber">Neu: 1.00</span>
+          <span class="chip chip-rose">Neg: 0.00</span>
+          <span class="chip chip-indigo">Compound: 0.00</span>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <button class="btn btn-teal btn-lg btn-full animate-in animate-in-delay-3" style="margin-top: var(--space-lg);" id="btnSaveEntry" onclick="saveJournalEntry()">
+        Save Entry 💾
+      </button>
+
+      <!-- Past Entries -->
+      <div style="margin-top: var(--space-2xl);">
+        <div class="section-header">
+          <span class="section-title">Past Entries</span>
+        </div>
+        <div class="stack" id="journalEntriesList">
+          <div class="glass-card glass-card-sm empty-state">
+            <div class="empty-state-icon">📝</div>
+            <div class="empty-state-text">Your journal entries will appear here</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SCREEN 4: MOOD TRACKER
+         ============================================ -->
+    <section class="screen" id="screen-mood">
+      <div class="section-header">
+        <h2 class="section-title" style="font-size: var(--font-size-xl);">Mood Tracker</h2>
+        <span class="chip chip-lavender" id="moodDateRange"></span>
+      </div>
+
+      <!-- Period Toggle -->
+      <div class="period-toggle animate-in" id="periodToggle">
+        <button class="period-btn active" data-period="7" onclick="setPeriod(this)">Last 7 Days</button>
+        <button class="period-btn" data-period="30" onclick="setPeriod(this)">Last Month</button>
+      </div>
+
+      <!-- Mood Chart -->
+      <div class="glass-card glass-card-sm chart-container animate-in animate-in-delay-1">
+        <div class="chart-title">Mood History</div>
+        <canvas class="chart-canvas" id="moodChartCanvas"></canvas>
+      </div>
+
+      <!-- Sentiment Bar Chart -->
+      <div class="glass-card glass-card-sm chart-container animate-in animate-in-delay-2">
+        <div class="chart-title">Sentiment Breakdown</div>
+        <canvas class="chart-canvas" id="sentimentChartCanvas"></canvas>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid-2 animate-in animate-in-delay-3" style="margin-top: var(--space-md);">
+        <div class="glass-card glass-card-sm stat-card">
+          <div class="stat-value" id="avgMoodStat">—</div>
+          <div class="stat-label">Average Mood</div>
+        </div>
+        <div class="glass-card glass-card-sm stat-card">
+          <div class="stat-value" id="frequentMoodStat">—</div>
+          <div class="stat-label">Most Frequent</div>
+        </div>
+      </div>
+
+      <!-- Streak -->
+      <div class="glass-card glass-card-sm streak-card animate-in animate-in-delay-3" style="margin-top: var(--space-md);">
+        <div class="streak-flame">🔥</div>
+        <div>
+          <div class="streak-count" id="streakCount">0</div>
+          <div class="streak-text">Day Journaling Streak</div>
+        </div>
+      </div>
+
+      <!-- Calendar Heatmap -->
+      <div class="glass-card glass-card-sm animate-in animate-in-delay-4" style="margin-top: var(--space-md);">
+        <div class="chart-title">Activity Heatmap</div>
+        <div class="heatmap-grid" id="heatmapGrid"></div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SCREEN 5: PHQ-9 SCREENING
+         ============================================ -->
+    <section class="screen" id="screen-screening">
+      <div class="screening-header">
+        <h2 class="section-title" style="font-size: var(--font-size-xl);">Mental Health<br>Check-In</h2>
+        <p class="section-subtitle" style="margin-top: var(--space-sm);">PHQ-9 Depression Screening</p>
+      </div>
+
+      <!-- Intro -->
+      <div id="screeningIntro">
+        <div class="glass-card animate-in" style="text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: var(--space-lg);">🧠</div>
+          <h3 style="color: var(--text-primary); margin-bottom: var(--space-md); font-size: var(--font-size-lg);">
+            About This Screening
+          </h3>
+          <p style="font-size: var(--font-size-sm); line-height: 1.7; margin-bottom: var(--space-xl);">
+            The PHQ-9 is a clinically validated questionnaire used worldwide to screen for depression. 
+            It consists of <strong style="color: var(--text-primary);">9 questions</strong> about how you've 
+            been feeling over the <strong style="color: var(--text-primary);">last 2 weeks</strong>.
+          </p>
+          <div class="glass-card glass-card-sm" style="text-align: left; margin-bottom: var(--space-xl); border-left: 3px solid var(--accent-amber);">
+            <p style="font-size: var(--font-size-sm); color: var(--accent-amber); font-weight: 600; margin-bottom: var(--space-xs);">⚠️ Important</p>
+            <p style="font-size: var(--font-size-xs); line-height: 1.6;">
+              This screening is for informational purposes only and is <strong style="color: var(--text-primary);">not a diagnosis</strong>. 
+              Please consult a healthcare professional for clinical evaluation.
+            </p>
+          </div>
+          <button class="btn btn-primary btn-lg btn-full" onclick="startScreening()">
+            Start Screening →
+          </button>
+        </div>
+      </div>
+
+      <!-- Questions -->
+      <div id="screeningQuestions" style="display: none;">
+        <div class="screening-progress">
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="screeningProgress" style="width: 11%;"></div>
+          </div>
+          <div class="progress-counter" id="questionCounter">Question 1 of 9</div>
+        </div>
+
+        <div class="glass-card question-card" id="questionCard">
+          <div class="question-text" id="questionText"></div>
+          <div class="answer-options" id="answerOptions"></div>
+        </div>
+
+        <div class="screening-nav">
+          <button class="btn btn-ghost" id="btnPrevQ" onclick="prevQuestion()" style="display: none;">← Back</button>
+          <button class="btn btn-primary" id="btnNextQ" onclick="nextQuestion()" style="flex:1;" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="screeningResults" style="display: none;">
+        <div class="glass-card animate-in" style="text-align: center;">
+          <h3 style="color: var(--text-primary); margin-bottom: var(--space-xl); font-size: var(--font-size-lg);">
+            Your Results
+          </h3>
+          <div class="result-score-circle">
+            <div class="result-score-number" id="phqScore">0</div>
+            <div class="result-score-max">/ 27</div>
+          </div>
+          <div class="result-severity">
+            <span class="severity-badge" id="severityBadge">Minimal</span>
+          </div>
+          <p class="result-description" id="resultDescription"></p>
+        </div>
+
+        <div class="glass-card help-callout animate-in animate-in-delay-1" style="margin-top: var(--space-md);">
+          <div class="help-callout-title">🤝 Professional Support</div>
+          <div class="help-callout-text">
+            If you're struggling, please reach out to a mental health professional. 
+            You can call the <strong style="color: var(--text-primary);">988 Suicide & Crisis Lifeline</strong> 
+            (call or text 988) anytime, 24/7.
+          </div>
+        </div>
+
+        <div class="glass-card help-callout animate-in animate-in-delay-2" style="margin-top: var(--space-md); border-left-color: var(--accent-indigo);">
+          <div class="help-callout-title" style="color: var(--accent-indigo);">🇮🇳 India Helplines</div>
+          <div class="help-callout-text">
+            <strong style="color: var(--text-primary);">iCall</strong>: 9152987821<br>
+            <strong style="color: var(--text-primary);">Vandrevala Foundation</strong>: 1860-2662-345<br>
+            <strong style="color: var(--text-primary);">NIMHANS</strong>: 080-46110007
+          </div>
+        </div>
+
+        <button class="btn btn-ghost btn-full animate-in animate-in-delay-3" style="margin-top: var(--space-lg);" onclick="resetScreening()">
+          Retake Screening 🔄
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SCREEN 6: RESOURCES
+         ============================================ -->
+    <section class="screen" id="screen-resources">
+      <div class="section-header">
+        <h2 class="section-title" style="font-size: var(--font-size-xl);">Nourish Your Mind</h2>
+      </div>
+
+      <!-- Tabs -->
+      <div class="resource-tabs animate-in" id="resourceTabs">
+        <button class="resource-tab active" data-tab="all" onclick="filterResources(this)">All</button>
+        <button class="resource-tab" data-tab="meditation" onclick="filterResources(this)">🧘 Meditation</button>
+        <button class="resource-tab" data-tab="breathing" onclick="filterResources(this)">🌬️ Breathing</button>
+        <button class="resource-tab" data-tab="articles" onclick="filterResources(this)">📖 Articles</button>
+        <button class="resource-tab" data-tab="crisis" onclick="filterResources(this)">🆘 Crisis</button>
+      </div>
+
+      <!-- Daily Affirmation -->
+      <div class="glass-card affirmation-card animate-in animate-in-delay-1" style="margin-top: var(--space-lg);" id="affirmationCard">
+        <p class="affirmation-text" id="affirmationText">"You are worthy of the love and kindness you give to others."</p>
+        <button class="btn btn-ghost affirmation-refresh" onclick="refreshAffirmation()">🔄 New Affirmation</button>
+      </div>
+
+      <!-- Resource Cards -->
+      <div class="stack animate-in animate-in-delay-2" style="margin-top: var(--space-lg);" id="resourceCards">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Breathing Exercise -->
+      <div class="glass-card animate-in animate-in-delay-2" style="margin-top: var(--space-lg); display: none;" id="breathingSection">
+        <div class="section-header">
+          <span class="section-title" style="font-size: var(--font-size-base);">Breathing Exercise</span>
+        </div>
+        <div class="breathing-container">
+          <div class="breathing-circle" id="breathingCircle">
+            Ready
+          </div>
+          <p class="breathing-instruction" id="breathingInstruction">Press start to begin a 4-7-8 breathing exercise</p>
+          <button class="btn btn-teal" style="margin-top: var(--space-xl);" id="btnBreathing" onclick="toggleBreathing()">
+            Start Breathing 🌬️
+          </button>
+        </div>
+      </div>
+
+      <!-- Crisis Section -->
+      <div id="crisisSection" style="margin-top: var(--space-lg); display: none;">
+        <div class="glass-card crisis-card animate-in">
+          <div class="crisis-title">🆘 Crisis Support</div>
+          <p class="crisis-desc">If you or someone you know is in crisis, please reach out immediately.</p>
+          <div class="crisis-number">988</div>
+          <p class="crisis-desc">Suicide & Crisis Lifeline (US)</p>
+          <p class="crisis-desc" style="margin-top: var(--space-md);">Call or text anytime, 24/7. Free & confidential.</p>
+        </div>
+        <div class="glass-card crisis-card animate-in animate-in-delay-1" style="margin-top: var(--space-md);">
+          <div class="crisis-title">🇮🇳 India Helplines</div>
+          <div class="crisis-number" style="font-size: var(--font-size-lg);">9152987821</div>
+          <p class="crisis-desc">iCall — Mon-Sat, 8am-10pm</p>
+          <div class="crisis-number" style="font-size: var(--font-size-lg); margin-top: var(--space-sm);">1860-2662-345</div>
+          <p class="crisis-desc">Vandrevala Foundation — 24/7</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         BOTTOM NAVIGATION
+         ============================================ -->
+    <nav class="bottom-nav" id="bottomNav" style="display: none;">
+      <button class="nav-item active" data-screen="dashboard" onclick="navigateTo('dashboard')">
+        <span class="nav-icon">🏠</span>
+        <span data-i18n="nav_dashboard">Dashboard</span>
+      </button>
+      <button class="nav-item" data-screen="journal" onclick="navigateTo('journal')">
+        <span class="nav-icon">📝</span>
+        <span data-i18n="nav_journal">Journal</span>
+      </button>
+      <button class="nav-item" data-screen="mood" onclick="navigateTo('mood')">
+        <span class="nav-icon">📈</span>
+        <span data-i18n="nav_stats">Stats</span>
+      </button>
+      <button class="nav-item" data-screen="screening" onclick="navigateTo('screening')">
+        <span class="nav-icon">🧠</span>
+        <span data-i18n="nav_screen">Screen</span>
+      </button>
+      <button class="nav-item" data-screen="resources" onclick="navigateTo('resources')">
+        <span class="nav-icon">🌿</span>
+        <span data-i18n="nav_wellness">Wellness</span>
+      </button>
+    </nav>
+
+  </div><!-- end app-container -->
+
+  <script src="app.js"></script>
+</body>
+</html>
