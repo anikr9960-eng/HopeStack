@@ -23,6 +23,12 @@ const state = {
   analyser: null,
   dataArray: null,
   voiceIntensity: 1.0,
+  voiceToneValence: 0.0,
+  faceScanActive: false,
+  faceModelsLoaded: false,
+  faceInterval: null,
+  cameraStream: null,
+  journalFaceEmotion: null,
   voiceToneValence: 0 // -1 to 1 based on audio features
 };
 
@@ -360,6 +366,14 @@ function analyzeJournalSentiment() {
     // Audio tone acts as a secondary bias (Weight: 70% Text, 30% Audio Tone)
     const audioBias = state.voiceToneValence * 0.3;
     scores.compound = Math.max(-1, Math.min(1, (scores.compound * 0.7) + audioBias));
+  }
+  
+  // Combine with Facial Expression Analysis
+  if (state.journalFaceEmotion) {
+    const emotionScores = { happy: 0.8, neutral: 0, sad: -0.6, angry: -0.8, fearful: -0.7, disgusted: -0.6, surprised: 0.3 };
+    const faceBias = emotionScores[state.journalFaceEmotion] || 0;
+    // Face acts as a 40% bias to the existing text+voice score
+    scores.compound = Math.max(-1, Math.min(1, (scores.compound * 0.6) + (faceBias * 0.4)));
   }
 
   drawGauge(scores.compound);
@@ -761,8 +775,118 @@ function stopVoiceRecording() {
     state.mediaStream.getTracks().forEach(track => track.stop());
     state.mediaStream = null;
   }
-  
   showToast('Voice journaling stopped');
+}
+
+// --- Facial Expression Analysis ---
+function toggleFaceScan() {
+  if (state.faceScanActive) stopFaceScan();
+  else startFaceScan();
+}
+
+async function startFaceScan() {
+  const btn = document.getElementById('btnCamera');
+  const card = document.getElementById('faceScanCard');
+  const status = document.getElementById('faceStatus');
+  const video = document.getElementById('faceVideo');
+  const readout = document.getElementById('expressionReadout');
+  
+  if (typeof faceapi === 'undefined') {
+    showToast('Face API not available.', 'error');
+    return;
+  }
+  
+  card.classList.remove('hidden');
+  btn.classList.add('recording');
+  btn.querySelector('.btn-label').textContent = 'Stop Scan';
+  state.faceScanActive = true;
+  readout.textContent = 'Waiting for face...';
+  
+  if (!state.faceModelsLoaded) {
+    status.textContent = 'Loading AI Models (approx 2MB)...';
+    try {
+      const modelUrl = 'https://justadudewhohacks.github.io/face-api.js/models';
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl),
+        faceapi.nets.faceExpressionNet.loadFromUri(modelUrl)
+      ]);
+      state.faceModelsLoaded = true;
+    } catch (e) {
+      console.error('Face Model Error:', e);
+      status.textContent = 'AI Load Failed';
+      return;
+    }
+  }
+  
+  status.textContent = 'Starting Camera...';
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    video.srcObject = stream;
+    state.cameraStream = stream;
+    
+    video.onplay = () => {
+      status.textContent = 'Scanning Face 📸';
+      const canvas = document.getElementById('faceCanvas');
+      const displaySize = { width: video.videoWidth, height: video.videoHeight };
+      faceapi.matchDimensions(canvas, displaySize);
+      
+      state.faceInterval = setInterval(async () => {
+        if (!state.faceScanActive) return;
+        
+        const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (detections) {
+          const resizedDetections = faceapi.resizeResults(detections, displaySize);
+          faceapi.draw.drawDetections(canvas, resizedDetections);
+          // Don't draw raw expressions overlay, let's keep it neat via our own UI
+          
+          const expressions = detections.expressions;
+          const dominant = Object.keys(expressions).reduce((a, b) => expressions[a] > expressions[b] ? a : b);
+          
+          const emoticons = {
+            neutral: '😐 Neutral',
+            happy: '😊 Happy',
+            sad: '😢 Sad',
+            angry: '😠 Angry',
+            fearful: '😨 Fearful',
+            disgusted: '🤢 Disgusted',
+            surprised: '😲 Surprised'
+          };
+          
+          readout.textContent = emoticons[dominant] || dominant;
+          state.journalFaceEmotion = dominant;
+          analyzeJournalSentiment(); // Re-trigger VADER to combine text + voice + face
+        } else {
+          readout.textContent = 'No face detected';
+          state.journalFaceEmotion = null;
+        }
+      }, 300); // scan rapidly
+    };
+  } catch (err) {
+    console.error('Camera error:', err);
+    status.textContent = 'Camera Blocked';
+    showToast('Camera access denied.', 'error');
+  }
+}
+
+function stopFaceScan() {
+  state.faceScanActive = false;
+  state.journalFaceEmotion = null;
+  const btn = document.getElementById('btnCamera');
+  if (btn) {
+    btn.classList.remove('recording');
+    btn.querySelector('.btn-label').textContent = 'Face Scan';
+  }
+  document.getElementById('faceScanCard').classList.add('hidden');
+  
+  if (state.faceInterval) clearInterval(state.faceInterval);
+  if (state.cameraStream) {
+    state.cameraStream.getTracks().forEach(t => t.stop());
+    state.cameraStream = null;
+  }
+  analyzeJournalSentiment(); // Reset gauge
 }
 function renderVoiceBars() {
   const container = document.getElementById('voiceWaveform');

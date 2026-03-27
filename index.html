@@ -7,8 +7,11 @@
   <meta name="theme-color" content="#0f172a">
   <title>HopeStack — Cultivate Calmer Days</title>
   <link rel="stylesheet" href="styles.css">
+  
+  <!-- Face API for Facial Expression Analysis -->
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 </head>
-<body>
+<body class="theme-dark">
 
   <!-- Background Glows -->
   <div class="bg-glow bg-glow-1"></div>
@@ -268,10 +271,28 @@
       <!-- Journal Text Area -->
       <div class="glass-card glass-card-sm animate-in animate-in-delay-1" style="margin-top: var(--space-md); position: relative;">
         <textarea class="textarea" id="journalText" placeholder="What's on your mind today? Write freely — this is your safe space..." oninput="analyzeJournalSentiment()"></textarea>
-        <div class="voice-actions">
+        <div class="voice-actions" style="display: flex; gap: var(--space-sm);">
+          <button class="btn btn-icon btn-mic" id="btnCamera" onclick="toggleFaceScan()" title="Facial Mood Scanner">
+            📷 <span class="btn-label">Face Scan</span>
+          </button>
           <button class="btn btn-icon btn-mic" id="btnMic" onclick="toggleVoiceRecording()" title="Speech to Text">
             🎙️ <span class="btn-label">Speech to Text</span>
           </button>
+        </div>
+      </div>
+
+      <!-- Face Scanner UI (Hidden by default) -->
+      <div class="glass-card glass-card-sm hidden" id="faceScanCard" style="margin-top: var(--space-md); position: relative; overflow: hidden;">
+        <div class="section-header" style="margin-bottom: var(--space-md);">
+          <span class="section-title" style="font-size: var(--font-size-sm);">Facial Emotion Analysis</span>
+          <span class="chip chip-indigo" id="faceStatus">Loading AI...</span>
+        </div>
+        <div class="video-container" style="position: relative; width: 100%; border-radius: var(--radius-md); overflow: hidden; background: #000;">
+          <video id="faceVideo" width="100%" height="auto" autoplay muted playsinline style="display: block;"></video>
+          <canvas id="faceCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+        </div>
+        <div class="expression-readout" id="expressionReadout" style="margin-top: var(--space-sm); font-size: var(--font-size-lg); text-align: center; font-weight: 600;">
+          Waiting for face...
         </div>
       </div>
 
